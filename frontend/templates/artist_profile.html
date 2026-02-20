@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Artist Profile - SheGlam{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-10">
+  <div class="container mx-auto px-6">
+    <a href="/artists" class="text-gray-500 hover:text-pink-600 mb-6 inline-block"><i
+        class="fas fa-arrow-left mr-2"></i> Back to Artists</a>
+
+    <div id="loading" class="text-center py-20">Loading profile...</div>
+
+    <div id="profileContent" class="hidden grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Artist Details -->
+      <div class="md:col-span-2 space-y-8">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div class="h-64 bg-gray-200">
+            <img id="artistImg" src="" class="w-full h-full object-cover">
+          </div>
+          <div class="p-8">
+            <div class="flex justify-between items-start">
+              <div>
+                <h1 id="artistName" class="text-3xl font-bold text-gray-900"></h1>
+                <p id="artistLocation" class="text-lg text-gray-500 mt-1 flex items-center">
+                  <i class="fas fa-map-marker-alt mr-2 text-pink-500"></i> <span></span>
+                </p>
+              </div>
+              <span id="expBadge" class="bg-pink-100 text-pink-800 px-4 py-2 rounded-full font-semibold text-sm"></span>
+            </div>
+
+            <div class="mt-8 border-t border-gray-100 pt-8">
+              <h2 class="text-xl font-bold mb-4">About</h2>
+              <p class="text-gray-600 leading-relaxed">
+                Professional makeup artist with expertise in bridal, party, and casual makeup looks.
+                Committed to enhancing your natural beauty using premium products.
+              </p>
+            </div>
+
+            <div class="mt-8">
+              <h2 class="text-xl font-bold mb-4">Certifications</h2>
+              <div class="flex items-center space-x-2">
+                <i class="fas fa-certificate text-yellow-500 text-xl"></i>
+                <span id="courseStatus" class="text-gray-700"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Form -->
+      <div class="md:col-span-1">
+        <div class="bg-white p-8 rounded-2xl shadow-lg sticky top-24">
+          <h2 class="text-2xl font-bold mb-6">Book Appointment</h2>
+
+          <form id="bookingForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <input name="date" type="date" required
+                class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+              <input name="time" type="time" required
+                class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Requirements / Note</label>
+              <textarea name="requirements" rows="3"
+                class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500"
+                placeholder="e.g. Bridal makeup needed..."></textarea>
+            </div>
+
+            <button id="bookBtn" type="submit"
+              class="w-full bg-pink-600 text-white py-3 rounded-lg font-bold hover:bg-pink-700 transition shadow-lg transform active:scale-95">
+              Request Booking
+            </button>
+
+            <div id="bookingMsg" class="text-center text-sm font-medium mt-4 hidden"></div>
+          </form>
+
+          <div id="loginPrompt" class="hidden mt-4 bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-center">
+            <p class="text-yellow-800 text-sm mb-2">Please login to book this artist.</p>
+            <a href="/login" class="text-pink-600 font-bold hover:underline">Login Now</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Extract artist ID from URL: /artist/<id>
+    const pathParts = window.location.pathname.split('/');
+    const artistId = pathParts[pathParts.length - 1];
+
+    // Check auth
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+
+    if (!token || role !== 'user') {
+      document.getElementById('bookingForm').classList.add('hidden');
+      document.getElementById('loginPrompt').classList.remove('hidden');
+    }
+
+    // Load Artist Data
+    try {
+      const res = await fetch(`/api/artist/${artistId}`);
+      if (!res.ok) throw new Error('Artist not found');
+
+      const artist = await res.json();
+
+      // Populate DOM
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('profileContent').classList.remove('hidden');
+
+      document.getElementById('artistName').textContent = artist.business_name || artist.name || 'Artist';
+      document.getElementById('artistLocation').querySelector('span').textContent = artist.location || 'Unknown';
+      document.getElementById('expBadge').textContent = `${artist.experience_years} Years Exp`;
+      document.getElementById('courseStatus').textContent = artist.course_done === 'yes' ? 'Professional Course Completed' : 'Self Taught';
+      document.getElementById('artistImg').src = `https://source.unsplash.com/random/800x600/?makeup,face&sig=${artist._id}`;
+
+    } catch (err) {
+      document.getElementById('loading').textContent = 'Error loading profile. ' + err.message;
+    }
+
+    // Handle Booking
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('bookBtn');
+      const msg = document.getElementById('bookingMsg');
+
+      const formData = new FormData(e.target);
+      const bookingData = {
+        artist_id: artistId,
+        date: formData.get('date'),
+        time: formData.get('time'),
+        requirements: formData.get('requirements')
+      };
+
+      btn.disabled = true;
+      btn.textContent = 'Requesting...';
+      msg.classList.remove('hidden');
+      msg.textContent = '';
+
+      try {
+        const res = await fetch('/api/booking', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(bookingData)
+        });
+        const result = await res.json();
+
+        if (res.ok) {
+          msg.textContent = 'Booking Requested Successfully!';
+          msg.className = 'text-center text-sm font-medium mt-4 text-green-600';
+          setTimeout(() => window.location.href = '/user-dashboard', 1500);
+        } else {
+          msg.textContent = result.error || 'Booking Failed';
+          msg.className = 'text-center text-sm font-medium mt-4 text-red-600';
+          btn.disabled = false;
+          btn.textContent = 'Request Booking';
+        }
+      } catch (err) {
+        msg.textContent = 'Network Error';
+        msg.className = 'text-center text-sm font-medium mt-4 text-red-600';
+        btn.disabled = false;
+        btn.textContent = 'Request Booking';
+      }
+    });
+  });
+</script>
+{% endblock %}

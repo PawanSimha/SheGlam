@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Register Artist - SheGlam{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-2xl mx-auto bg-white p-10 rounded-2xl shadow-xl">
+    <div class="text-center mb-10">
+      <h2 class="text-3xl font-extrabold text-gray-900">Join as an Artist</h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Showcase your talent and grow your business
+      </p>
+    </div>
+
+    <form id="registerArtistForm" class="space-y-6">
+      <!-- Row 1 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+          <input name="name" type="text" required
+            class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Business Name (Optional)</label>
+          <input name="business_name" type="text"
+            class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+          <input name="email" type="email" required
+            class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+          <input name="phone" type="text" required
+            class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">City / Location</label>
+        <select name="location"
+          class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 bg-white">
+          <option value="">Select City</option>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Kolkata">Kolkata</option>
+          <option value="Pune">Pune</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Experience -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
+          <input name="experience_years" type="number" min="0" required
+            class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Course Completed?</label>
+          <select name="course_done"
+            class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 bg-white">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Uploads -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Makeup Certificate (Image)</label>
+          <input name="certificate" type="file" accept="image/*"
+            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Govt ID (Image)</label>
+          <input name="govt_id_file" type="file" accept="image/*"
+            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <input name="password" type="password" required
+          class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500">
+      </div>
+
+      <button type="submit"
+        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition">
+        Register & Submit for Approval
+      </button>
+
+      <div id="message" class="text-center text-sm font-medium mt-4 h-6"></div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('registerArtistForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const msgDiv = document.getElementById('message');
+
+    msgDiv.textContent = 'Uploading details...';
+    msgDiv.className = 'text-center text-sm font-medium mt-4 h-6 text-gray-500';
+
+    try {
+      const res = await fetch('/api/register-artist', {
+        method: 'POST',
+        body: formData // Send as multipart/form-data
+      });
+      const result = await res.json();
+
+      if (res.ok) {
+        msgDiv.textContent = 'Application submitted! Please login to check status.';
+        msgDiv.className = 'text-center text-sm font-medium mt-4 h-6 text-green-600';
+        setTimeout(() => window.location.href = '/login', 2500);
+      } else {
+        msgDiv.textContent = result.error || 'Registration failed';
+        msgDiv.className = 'text-center text-sm font-medium mt-4 h-6 text-red-600';
+      }
+    } catch (err) {
+      msgDiv.textContent = 'Network error';
+      msgDiv.className = 'text-center text-sm font-medium mt-4 h-6 text-red-600';
+    }
+  });
+</script>
+{% endblock %}

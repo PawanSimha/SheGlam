@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - SheGlam{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-10">
+  <div class="container mx-auto px-6">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">My Dashboard</h1>
+      <a href="/artists"
+        class="bg-pink-600 text-white px-6 py-2 rounded-full font-medium hover:bg-pink-700 transition shadow-md">
+        + Book New Artist
+      </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-8">
+      <h2 class="text-xl font-bold mb-6 border-b pb-4">My Bookings</h2>
+
+      <div id="loading" class="text-center text-gray-500 py-4">Loading bookings...</div>
+      <div id="bookingsList" class="space-y-4">
+        <!-- Populated by JS -->
+      </div>
+      <div id="noBookings" class="hidden text-center py-10">
+        <div
+          class="bg-pink-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-pink-500 text-2xl">
+          <i class="far fa-calendar-alt"></i>
+        </div>
+        <p class="text-gray-500 mb-4">You haven't made any bookings yet.</p>
+        <a href="/artists" class="text-pink-600 font-medium hover:underline">Browse Artists</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/bookings', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+        return;
+      }
+
+      const bookings = await res.json();
+      const listContainer = document.getElementById('bookingsList');
+      document.getElementById('loading').classList.add('hidden');
+
+      if (!bookings || bookings.length === 0) {
+        document.getElementById('noBookings').classList.remove('hidden');
+        return;
+      }
+
+      bookings.reverse(); // Newest first
+
+      listContainer.innerHTML = bookings.map(b => getBookingHtml(b)).join('');
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loading').textContent = 'Failed to load bookings.';
+    }
+  });
+
+  function getBookingHtml(b) {
+    let statusColor = 'bg-yellow-100 text-yellow-800';
+    let icon = 'fa-clock';
+
+    if (b.status === 'accepted') {
+      statusColor = 'bg-green-100 text-green-800';
+      icon = 'fa-check-circle';
+    } else if (b.status === 'rejected') {
+      statusColor = 'bg-red-100 text-red-800';
+      icon = 'fa-times-circle';
+    } else if (b.status === 'completed') {
+      statusColor = 'bg-blue-100 text-blue-800';
+      icon = 'fa-check-double';
+    }
+
+    return `
+        <div class="border border-gray-100 rounded-xl p-6 hover:shadow-md transition bg-white flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div class="mb-4 md:mb-0">
+                <div class="flex items-center mb-2">
+                    <h3 class="font-bold text-lg text-gray-800 mr-3">${b.artist_name || 'Artist'}</h3>
+                    <span class="text-xs px-3 py-1 rounded-full font-bold flex items-center ${statusColor}">
+                        <i class="fas ${icon} mr-1"></i> ${b.status.toUpperCase()}
+                    </span>
+                </div>
+                <p class="text-gray-500 text-sm">
+                    <i class="far fa-calendar mr-1"></i> ${b.date} &nbsp;|&nbsp; 
+                    <i class="far fa-clock mr-1"></i> ${b.time}
+                </p>
+                ${b.requirements ? `<p class="text-gray-400 text-sm mt-2 italic">"${b.requirements}"</p>` : ''}
+            </div>
+            
+            <div class="text-right">
+                <a href="/artist/${b.artist_id}" class="text-pink-600 hover:text-pink-800 text-sm font-medium">View Artist Profile</a>
+            </div>
+        </div>
+    `;
+  }
+</script>
+{% endblock %}

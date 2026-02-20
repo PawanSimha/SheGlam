@@ -1,0 +1,60 @@
+<header class="bg-white shadow-sm fixed top-0 left-0 w-full z-50 transition-all duration-300" id="navbar">
+    <div class="container mx-auto h-20 flex justify-between items-center">
+        <!-- Logo -->
+        <a href="/" class="flex items-center group">
+            <img src="{{ url_for('static', filename='images/SheGlam.png') }}"
+                class="h-10 w-auto mr-3 group-hover:scale-105 transition-transform duration-300" alt="SheGlam Logo">
+            <span class="text-2xl font-extrabold text-gray-900 tracking-tight"><span
+                    class="text-purple-600">She</span>Glam<span class="text-pink-500">.</span></span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex space-x-8 items-center" aria-label="Main Navigation">
+            <a href="/"
+                class="text-gray-600 hover:text-purple-600 font-medium transition duration-200 border-b-2 border-transparent hover:border-purple-600">Home</a>
+            <a href="/artists"
+                class="text-gray-600 hover:text-purple-600 font-medium transition duration-200 border-b-2 border-transparent hover:border-purple-600">Artists</a>
+            <a href="/offers"
+                class="text-gray-600 hover:text-purple-600 font-medium transition duration-200 border-b-2 border-transparent hover:border-purple-600">Offers</a>
+            <a href="/contact"
+                class="text-gray-600 hover:text-purple-600 font-medium transition duration-200 border-b-2 border-transparent hover:border-purple-600">Contact</a>
+        </nav>
+
+        <!-- Auth Buttons -->
+        <div class="hidden md:flex items-center space-x-4" id="auth-links">
+            <a href="/login" class="text-gray-600 hover:text-purple-600 font-bold transition duration-200">Sign In</a>
+            <a href="/register-user"
+                class="bg-purple-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-purple-700 transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">Free
+                Trial</a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-btn" class="md:hidden text-gray-600 hover:text-purple-600 focus:outline-none p-2"
+            aria-label="Toggle Mobile Menu">
+            <i class="fas fa-bars text-2xl transition-transform duration-300"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu"
+        class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full left-0 shadow-xl origin-top animate-fade-in">
+        <div class="px-6 py-4 flex flex-col space-y-4">
+            <a href="/" class="text-gray-600 hover:text-purple-600 font-medium py-2 border-b border-gray-50">Home</a>
+            <a href="/artists"
+                class="text-gray-600 hover:text-purple-600 font-medium py-2 border-b border-gray-50">Artists</a>
+            <a href="/offers"
+                class="text-gray-600 hover:text-purple-600 font-medium py-2 border-b border-gray-50">Offers</a>
+            <a href="/contact"
+                class="text-gray-600 hover:text-purple-600 font-medium py-2 border-b border-gray-50">Contact</a>
+            <div id="mobile-auth-links" class="flex flex-col space-y-3 pt-2">
+                <a href="/login"
+                    class="text-center w-full border-2 border-purple-100 text-purple-600 py-2.5 rounded-full font-bold hover:bg-purple-50 transition">Sign
+                    In</a>
+                <a href="/register-user"
+                    class="text-center w-full bg-purple-600 text-white py-2.5 rounded-full font-bold hover:bg-purple-700 transition shadow-md">Free
+                    Trial</a>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="h-20"></div> <!-- Spacer -->

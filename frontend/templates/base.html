@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="SheGlam - The premier marketplace for women-only makeup services. Find top-tier artists for weddings, parties, and events.">
+    <meta name="author" content="Pawan Simha">
+    <meta name="theme-color" content="#db2777">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sheglam.com/">
+    <meta property="og:title" content="SheGlam - Instant Makeup Services">
+    <meta property="og:description" content="Find your perfect look. Connect with verified makeup artists near you.">
+    <meta property="og:image" content="{{ url_for('static', filename='images/hero.png') }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://sheglam.com/">
+    <meta property="twitter:title" content="SheGlam - Instant Makeup Services">
+    <meta property="twitter:description"
+        content="Find your perfect look. Connect with verified makeup artists near you.">
+    <meta property="twitter:image" content="{{ url_for('static', filename='images/hero.png') }}">
+
+    <title>{% block title %}SheGlam - Instant Makeup Services{% endblock %}</title>
+
+    <!-- Tailwind CSS (CDN for simplicity, consider build process for full production) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/SheGlam.png') }}">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    <!-- Custom Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        purple: {
+                            50: '#fdf6f8',
+                            100: '#fbe9ef',
+                            200: '#f7d3e0',
+                            300: '#f0a7c1',
+                            400: '#e87ca2',
+                            500: '#e15083',
+                            600: '#db2d6a',
+                            700: '#b61f54',
+                            800: '#8b1740',
+                            900: '#5f102c',
+                        },
+                        pink: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    {% block head %}{% endblock %}
+</head>
+
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+
+    {% include 'header.html' %}
+
+    <main class="flex-grow w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'footer.html' %}
+
+    <!-- Scripts -->
+    <script>
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        if (btn && menu) {
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+                const icon = btn.querySelector('i');
+                if (menu.classList.contains('hidden')) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                } else {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                }
+            });
+        }
+
+        // Auth Logic check
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            const authLinks = document.getElementById('auth-links');
+            const mobileAuthLinks = document.getElementById('mobile-auth-links');
+
+            if (token) {
+                // User is logged in
+                let dashboardLink = '/user-dashboard';
+                if (role === 'artist') dashboardLink = '/artist-dashboard';
+                if (role === 'admin') dashboardLink = '/admin-dashboard';
+
+                const loggedInHtml = `
+                    <a href="${dashboardLink}" class="text-gray-700 hover:text-pink-600 font-medium transition duration-200">Dashboard</a>
+                    <button onclick="logout()" class="px-5 py-2 rounded-full border border-pink-500 text-pink-600 font-medium hover:bg-pink-50 transition duration-200">Logout</button>
+                `;
+
+                const loggedInMobileHtml = `
+                    <a href="${dashboardLink}" class="text-gray-700 hover:text-pink-600 font-medium py-2">Dashboard</a>
+                    <button onclick="logout()" class="text-left text-gray-700 hover:text-pink-600 font-medium py-2">Logout</button>
+                `;
+
+                if (authLinks) authLinks.innerHTML = loggedInHtml;
+                if (mobileAuthLinks) mobileAuthLinks.innerHTML = loggedInMobileHtml;
+            } else {
+                if (authLinks) {
+                    authLinks.innerHTML = `
+                        <a href="/login" class="text-gray-700 hover:text-pink-600 font-medium transition duration-200">Login</a>
+                        <a href="/register-user" class="px-5 py-2 rounded-full bg-pink-600 text-white font-medium hover:bg-pink-700 shadow-md hover:shadow-lg transition duration-200">Join Now</a>
+                    `;
+                }
+                if (mobileAuthLinks) {
+                    mobileAuthLinks.innerHTML = `
+                         <a href="/login" class="text-gray-700 hover:text-pink-600 font-medium py-2">Login</a>
+                        <a href="/register-user" class="text-pink-600 font-medium py-2">Join Now</a>
+                    `;
+                }
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            localStorage.removeItem('email');
+            window.location.href = '/login';
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

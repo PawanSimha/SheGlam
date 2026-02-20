@@ -1,0 +1,126 @@
+/* SheGlam – Form styles */
+
+.btn {
+  display: inline-block;
+  padding: 0.6rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  color: #fff;
+  text-decoration: none;
+}
+.btn-secondary {
+  background: #e8e0dc;
+  color: var(--text);
+}
+.btn-secondary:hover {
+  background: #ddd4cf;
+  color: var(--text);
+  text-decoration: none;
+}
+.btn-block {
+  width: 100%;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+  color: var(--text);
+}
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group input[type="url"],
+.form-group input[type="file"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid #e0d8d4;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(196, 92, 74, 0.15);
+}
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+.form-group .hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.form-actions .btn { flex: 1; min-width: 120px; }
+
+.auth-box {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.auth-box h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+.auth-box .switch-link {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Rating stars */
+.rating-stars {
+  display: flex;
+  gap: 2px;
+  font-size: 1.25rem;
+  color: #e0d8d4;
+}
+.rating-stars .filled { color: var(--warning); }
+.rating-stars input { display: none; }
+.rating-stars label { cursor: pointer; }
+
+/* File upload */
+.file-upload-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}

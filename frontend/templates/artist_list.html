@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Artists - SheGlam{% endblock %}
+
+{% block content %}
+<div class="bg-pink-50 min-h-screen py-10">
+  <div class="container mx-auto px-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">Find Your Perfect Makeup Artist</h1>
+
+    <!-- Filters (Simple implementation) -->
+    <div class="max-w-xl mx-auto mb-12">
+      <div class="relative">
+        <input type="text" id="searchInput" placeholder="Search by name or location..."
+          class="w-full px-5 py-4 pl-12 rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500">
+        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+          <i class="fas fa-search"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Artists Grid -->
+    <div id="artistsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Loaded via JS -->
+      <div class="col-span-full text-center py-10 text-gray-500">Loading artists...</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function loadArtists() {
+    try {
+      const res = await fetch('/api/artists');
+      const artists = await res.json();
+      const grid = document.getElementById('artistsGrid');
+
+      if (artists.length === 0) {
+        grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-500">No approved artists found yet.</div>';
+        return;
+      }
+
+      grid.innerHTML = artists.map(artist => `
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition artist-card">
+                <div class="h-48 bg-gray-200 relative">
+                     <img src="https://source.unsplash.com/random/400x300/?makeup,face&sig=${artist._id}" class="w-full h-full object-cover">
+                     <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-xs font-bold text-pink-600 shadow-sm">
+                        ${artist.experience_years} Years Exp
+                     </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="font-bold text-xl mb-1">${artist.business_name || artist.name || 'Artist'}</h3>
+                    <p class="text-sm text-gray-500 mb-4 flex items-center">
+                        <i class="fas fa-map-marker-alt mr-2 text-pink-500"></i> ${artist.location || 'Unknown Location'}
+                    </p>
+                    
+                    <div class="flex items-center justify-between mt-4">
+                         <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Course Certified: ${artist.course_done === 'yes' ? 'Yes' : 'No'}</span>
+                    </div>
+
+                    <a href="/artist/${artist._id}" class="block mt-6 w-full text-center bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700 transition font-medium shadow-md">
+                        View Profile & Book
+                    </a>
+                </div>
+            </div>
+        `).join('');
+
+      // Simple Search Filter
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.artist-card');
+        cards.forEach(card => {
+          const text = card.textContent.toLowerCase();
+          card.style.display = text.includes(term) ? 'block' : 'none';
+        });
+      });
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('artistsGrid').innerHTML = '<div class="col-span-full text-center text-red-500">Failed to load artists.</div>';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadArtists);
+</script>
+{% endblock %}
