@@ -1,3 +1,4 @@
+import re
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from werkzeug.utils import secure_filename
@@ -103,7 +104,9 @@ def list_artists():
     min_rating = request.args.get("min_rating", type=float)
     query = {"verification_status": "approved"}
     if location:
-        query["location"] = {"$regex": location, "$options": "i"}
+        # Sanitize location for regex (escape special characters)
+        safe_location = re.escape(location)
+        query["location"] = {"$regex": safe_location, "$options": "i"}
     if min_rating is not None:
         query["rating"] = {"$gte": min_rating}
 

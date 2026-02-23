@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="SheGlam - The premier marketplace for women-only makeup services. Find top-tier artists for weddings, parties, and events.">
+        content="{% block meta_description %}SheGlam - The premier marketplace for women-only makeup services. Find top-tier artists for weddings, parties, and events.{% endblock %}">
     <meta name="author" content="Pawan Simha">
+    {% block meta %}{% endblock %}
     <meta name="theme-color" content="#db2777">
 
     <!-- Open Graph / Facebook -->
@@ -119,12 +120,11 @@
 
         // Auth Logic check
         document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('token');
             const role = localStorage.getItem('role');
             const authLinks = document.getElementById('auth-links');
             const mobileAuthLinks = document.getElementById('mobile-auth-links');
 
-            if (token) {
+            if (role) {
                 // User is logged in
                 let dashboardLink = '/user-dashboard';
                 if (role === 'artist') dashboardLink = '/artist-dashboard';

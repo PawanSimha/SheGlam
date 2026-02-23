@@ -1,4 +1,5 @@
-import os
+import logging
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 from flask import Flask, send_from_directory, render_template
@@ -35,6 +36,26 @@ app = Flask(
     static_folder=str(STATIC),
     static_url_path="/static",
 )
+
+# -------------------
+# LOGGING CONFIG
+# -------------------
+if not app.debug:
+    # Ensure logs directory exists
+    log_dir = PROJECT_ROOT / "logs"
+    log_dir.mkdir(exist_ok=True)
+    
+    file_handler = RotatingFileHandler(
+        log_dir / "sheglam.log", maxBytes=10240, backupCount=10
+    )
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('SheGlam startup')
+
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = JWT_ACCESS_TOKEN_EXPIRES
@@ -121,6 +142,16 @@ def contact_page():
 @app.route("/offers")
 def offers_page():
     return render_template("offers.html")
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    return send_from_directory(str(STATIC), "robots.txt")
+
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    return send_from_directory(str(STATIC), "sitemap.xml")
 
 
 # -------------------

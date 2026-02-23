@@ -6,6 +6,8 @@ from flask_jwt_extended import (
     create_access_token,
     get_jwt_identity,
     jwt_required,
+    set_access_cookies,
+    unset_jwt_cookies,
 )
 
 from database.db import users_collection
@@ -87,12 +89,13 @@ def login():
             })
         identity = {"sub": ADMIN_EMAIL, "role": "admin"}
         token = create_access_token(identity=identity)
-        return jsonify({
+        resp = jsonify({
             "message": "Login successful",
-            "token": token,
             "role": "admin",
             "email": ADMIN_EMAIL,
-        }), 200
+        })
+        set_access_cookies(resp, token)
+        return resp, 200
 
     user = users_collection.find_one({"email": email})
     pw_hash = user.get("password_hash") or user.get("password") if user else None
@@ -101,12 +104,13 @@ def login():
 
     identity = {"sub": user["email"], "role": user["role"]}
     token = create_access_token(identity=identity)
-    return jsonify({
+    resp = jsonify({
         "message": "Login successful",
-        "token": token,
         "role": user["role"],
         "email": user["email"],
-    }), 200
+    })
+    set_access_cookies(resp, token)
+    return resp, 200
 
 
 # ---------------------------
@@ -131,3 +135,14 @@ def me():
         return jsonify({"error": "User not found"}), 404
     user["_id"] = str(user["_id"])
     return jsonify(user), 200
+
+
+# ---------------------------
+# LOGOUT
+# POST /auth/logout
+# ---------------------------
+@auth_bp.route("/logout", methods=["POST"])
+def logout():
+    resp = jsonify({"message": "Logout successful"})
+    unset_jwt_cookies(resp)
+    return resp, 200

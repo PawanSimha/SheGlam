@@ -16,6 +16,21 @@ bookings = db["bookings"]
 reviews = db["reviews"]
 
 
+def init_indexes():
+    """Create indexes for performance and uniqueness."""
+    users_collection.create_index("email", unique=True)
+    artists.create_index("user_id")
+    artists.create_index("location")
+    artists.create_index("verification_status")
+    bookings.create_index("user_id")
+    bookings.create_index("artist_id")
+    bookings.create_index("status")
+
+
+# Initialize indexes on startup
+init_indexes()
+
+
 def ensure_upload_dirs():
     """Create upload directories if they don't exist (files hidden from public via .gitignore)."""
     for d in (UPLOAD_CERTIFICATES, UPLOAD_GOVT_IDS):

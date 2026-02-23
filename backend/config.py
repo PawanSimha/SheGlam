@@ -12,6 +12,11 @@ DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"
 # JWT
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret-change-in-prod")
 JWT_ACCESS_TOKEN_EXPIRES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 86400))  # 24 hours
+JWT_TOKEN_LOCATION = ["cookies", "headers"]
+JWT_COOKIE_SECURE = False  # Set to True in production with HTTPS
+JWT_COOKIE_CSRF_PROTECT = True
+JWT_ACCESS_COOKIE_PATH = "/"
+JWT_COOKIE_SAMESITE = "Lax"
 
 # Admin
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@sheglam.com")

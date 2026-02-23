@@ -136,19 +136,31 @@ def list_bookings():
     else:
         return jsonify({"error": "Access denied"}), 403
 
-    out = []
-    for b in cursor:
-        b["_id"] = str(b["_id"])
-        # Fetch artist name for display
-        if role == "user":
-            artist_doc = artists.find_one({"_id": ObjectId(b["artist_id"])})
+    out = list(cursor)
+    if not out:
+        return jsonify([]), 200
+
+    # Solve N+1: Fetch all required artist and user names in bulk if role is user
+    if role == "user":
+        artist_ids = [ObjectId(b["artist_id"]) for b in out]
+        # Fetch artist docs
+        artist_docs = {str(a["_id"]): a for a in artists.find({"_id": {"$in": artist_ids}})}
+        
+        # Fetch user names for artists (to fallback if business_name is missing)
+        artist_user_emails = [a["user_id"] for a in artist_docs.values()]
+        user_names = {u["email"]: u["name"] for u in users_collection.find({"email": {"$in": artist_user_emails}})}
+
+        for b in out:
+            b["_id"] = str(b["_id"])
+            artist_doc = artist_docs.get(str(b["artist_id"]))
             if artist_doc:
-                # Try business_name from artist doc first
                 name = artist_doc.get("business_name")
                 if not name:
-                    # Fallback to user name
-                    u = users_collection.find_one({"email": artist_doc.get("user_id")})
-                    name = u["name"] if u else "Artist"
+                    name = user_names.get(artist_doc.get("user_id"), "Artist")
                 b["artist_name"] = name
-        out.append(b)
+    else:
+        # For artists, just serialize IDs
+        for b in out:
+            b["_id"] = str(b["_id"])
+
     return jsonify(out), 200

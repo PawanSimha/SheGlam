@@ -11,8 +11,7 @@ function getToken() {
   return localStorage.getItem(AUTH_TOKEN_KEY);
 }
 
-function setAuth(token, role, email) {
-  if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
+function setAuth(role, email) {
   if (role) localStorage.setItem(AUTH_ROLE_KEY, role);
   if (email) localStorage.setItem(AUTH_EMAIL_KEY, email);
 }
@@ -31,11 +30,16 @@ function getEmail() {
   return localStorage.getItem(AUTH_EMAIL_KEY);
 }
 
+function getCsrfToken() {
+  const match = document.cookie.match(/csrf_access_token=([^;]+)/);
+  return match ? match[1] : "";
+}
+
 function authHeaders() {
-  const token = getToken();
+  const csrf = getCsrfToken();
   return {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: "Bearer " + token } : {}),
+    ...(csrf ? { "X-CSRF-TOKEN": csrf } : {}),
   };
 }
 
@@ -71,7 +75,7 @@ async function handleLogin(e) {
       if (errEl) { errEl.textContent = data.error || "Login failed."; errEl.classList.remove("hidden"); }
       return;
     }
-    setAuth(data.token, data.role, data.email);
+    setAuth(data.role, data.email);
     redirectByRole();
   } catch (err) {
     if (errEl) { errEl.textContent = "Network error. Try again."; errEl.classList.remove("hidden"); }
@@ -153,16 +157,24 @@ async function handleSignupArtist(e) {
 }
 
 // ---------- Logout ----------
-function handleLogout() {
+async function handleLogout() {
+  try {
+    await fetch(API_BASE + "/auth/logout", {
+      method: "POST",
+      headers: authHeaders(),
+    });
+  } catch (err) {
+    console.error("Logout request failed", err);
+  }
   clearAuth();
   window.location.href = "/login";
 }
 
 // ---------- Require auth (use on dashboard pages) ----------
 function requireAuth(expectedRole) {
-  const token = getToken();
   const role = getRole();
-  if (!token) {
+  const isLoggedIn = !!role;
+  if (!isLoggedIn) {
     window.location.href = "/login";
     return false;
   }
@@ -198,7 +210,7 @@ function updateNavigation() {
       html += '<a href="/artist-dashboard">My Bookings</a>';
     }
     // Admin usually stays on dashboard, but we can add a link if needed.
-    
+
     html += '<button type="button" class="link-style" id="logout-btn">Logout</button>';
   }
 
