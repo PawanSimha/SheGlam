@@ -2,7 +2,7 @@
   <img src="frontend/static/images/SheGlam.png" width="150" alt="SheGlam Logo" style="border-radius: 50%;">
 </p>
 
-<h1 align="center">SheGlam - Instant Makeup Services</h1>
+<h1 align="center"><img src="frontend/static/images/SheGlam.ico" width="32" height="32" style="vertical-align: middle; margin-right: 10px;"> SheGlam - Instant Makeup Services</h1>
 <p align="center">
   <strong>The Premier Marketplace for Professional Beauty Artistry</strong><br>
   <em>A high-performance, secure platform connecting clients with top-tier makeup artists for every occasion.</em>
